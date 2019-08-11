@@ -1,0 +1,90 @@
+CREATE TABLE t_wiki_partitioned
+	(article string, views int, rank int)
+	PARTITIONED BY (year int, month int)
+	STORED AS ORC;
+	
+
+
+#CREATE TABLE t_wiki_partitioned (article string, views int, rank int) PARTITIONED BY (year int, month int) STORED AS ORC;
+
+# enable dynamic partitioning mode
+SET hive.exec.dynamic.partition.mode = nonstrict;
+
+
+INSERT INTO TABLE t_wiki_partitioned 
+PARTITION (year, month)
+SELECT year, month, article, views, rank
+FROM t2_wiki;
+
+INSERT INTO TABLE t_wiki_partitioned PARTITION (year, month) SELECT article, views, rank, year, month FROM t2_wiki;
+
+DROP TABLE IF EXISTS t_wiki_partitioned;
+
+DESCRIBE FORMATTED tablename;
+
+SELECT t2_wiki.year, COUNT(t2_wiki.year) FROM t2_wiki WHERE t2_wiki.year = "NULL"
+
+SELECT year, COUNT(year) FROM t2_wiki WHERE year = "NULL" GROUP BY year;
+
+SELECT max(views) FROM t2_wiki WHERE month=2;
+
+SELECT max(views) FROM t2_wiki_partitioned WHERE month=2;
+
+/user/hive/warehouse/bootcamp.db/t_wiki_partitioned/year=__HIVE_DEFAULT_PARTITION__/month=__HIVE_DEFAULT_PARTITION__/
+
+/user/hive/warehouse/bootcamp.db/t_wiki_partitioned/year=2018/month=1
+/user/hive/warehouse/bootcamp.db/t_wiki_partitioned/year=2018/month=2
+/user/hive/warehouse/bootcamp.db/t_wiki_partitioned/year=2018/month=3
+/user/hive/warehouse/bootcamp.db/t_wiki_partitioned/year=2018/month=4
+/user/hive/warehouse/bootcamp.db/t_wiki_partitioned/year=2018/month=5
+/user/hive/warehouse/bootcamp.db/t_wiki_partitioned/year=2018/month=6
+
+CREATE EXTERNAL TABLE e_wiki_partitioned 
+PARTITIONED BY (year int, month int)  
+LOCATION '/user/cloudera/wiki2'
+AS SELECT article, views, rank, year, month FROM t2_wiki;
+
+hdfs dfs -mkdir /user/cloudera/wiki2
+
+CREATE EXTERNAL TABLE e_wiki_partitioned 
+(article string, views int, rank int)
+PARTITIONED BY (year int, month int)
+STORED AS ORC
+LOCATION '/user/cloudera/wiki2';
+
+INSERT OVERWRITE TABLE e_wiki_partitioned PARTITION (year, month) SELECT article,views,rank, year, month FROM t_wiki_partitioned;
+
+MSCK REPAIR TABLE e_wiki_partitioned
+
+SHOW CREATE table  #shows the previous create table command
+
+DROP TABLE IF EXISTS e_wiki_partitioned;
+
+hdfs dfs -rm -r /user/cloudera/wiki2/year=__HIVE_DEFAULT_PARTITION__
+hdfs dfs -rm -r /user/hive/warehouse/bootcamp.db/t_wiki_partitioned/year=__HIVE_DEFAULT_PARTITION__
+
+SELECT COUNT(DISTINCT article) 
+FROM e_wiki_partitioned
+WHERE month=2; 
+
+hdfs dfs -rm -r /user/cloudera/wiki2/year=2018/month=2
+
+SELECT COUNT(*) FROM e_wiki_partitioned;
+
+hdfs dfs -rm -r /user/hive/warehouse/bootcamp.db/t_wiki_partitioned/year=2018/month=2
+
+SELECT COUNT(*) FROM t_wiki_partitioned;
+
+SELECT COUNT(*) FROM t_wiki_partitioned WHERE month=2;
+
+hdfs dfs -put /home/cloudera/Desktop/shared/hive-example-udf_0.0.1.jar /user/cloudera/libraries/timestamp
+
+CREATE TEMPORARY FUNCTION stringKing AS 'lower' USING JAR '/user/cloudera/libraries/timestamp/hive-example-udf_0.0.1.jar';
+
+CREATE TEMPORARY FUNCTION stringKing AS 'lower' USING JAR 'libraries/timestamp/hive-example-udf_0.0.1.jar';
+
+SELECT stringKing(col) FROM table;
+
+hdfs dfs -put /home/cloudera/Desktop/shared/impdb.csv /user/cloudera/impala
+
+
