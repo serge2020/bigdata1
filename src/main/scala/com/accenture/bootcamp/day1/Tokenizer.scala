@@ -9,6 +9,7 @@ object Tokenizer {
   type Classifier = String
   type Amount = Long
   type WordStats = (Int, Int, Int, Int)
+  type Group = String
 
   /**
     * Task #3: Tokenize (split string into words) 
@@ -130,7 +131,13 @@ object Tokenizer {
     */
   def wordStats(word: Word): WordStats = {
     // TODO Task #12a: Gather word stats by 4 criteria
-    ???
+
+    val a = word.toLowerCase().replaceAll("[^0-9]", "").size   //cipari
+    val b = word.toLowerCase().replaceAll("[^aeiouy]", "").size //patskaņi
+    val c = word.toLowerCase().replaceAll("[^b-df-hj-np-tv-z]", "").size    //līdzskaņi
+    val d = word.toLowerCase().replaceAll("[a-z0-9]", "").size  // viss pārējais
+    val clf: WordStats = (a, b, c, d)
+    clf
   }
 
   /**
@@ -151,10 +158,19 @@ object Tokenizer {
     */
   def wordStatsClassifier(wordStats: WordStats): Classifier = {
     // TODO Task #12b: Classify word by
-    ???
-  }
+    //val wordStats = Tokenizer.wordStats(wordStats: String)
+
+    if ((wordStats._1 > 0) && (wordStats._2 == 0 && wordStats._3 == 0 && wordStats._4 == 0) ) "numbers"
+    else if ((wordStats._1 > 0 || wordStats._4 > 0) && (wordStats._2 + wordStats._3 < 2) ) "thrash"
+    else if ((wordStats._2 == wordStats._3) && (wordStats._2 != 0 && wordStats._3 !=0)) "balanced_words"
+    else if ((wordStats._2 > wordStats._3) && (wordStats._2 != 0 && wordStats._3 !=0)) "singing_words"
+    else "grunting_words"
+
+    }
+
 
   def wordClassifier(word: Word): Classifier = {
+
     wordStatsClassifier(wordStats(word))
   }
 
@@ -167,7 +183,11 @@ object Tokenizer {
     */
   def classify(words: RDD[Word]): Map[Classifier, Amount] = {
     // TODO Task #13a: How many elements there are in each group
-    ???
+
+    val groups1 = words.map(x => (x, Tokenizer.wordClassifier(x)))
+    val groups2 = groups1.map({gp => (gp._2, gp._2.count(_ == gp._2).toLong)})
+    val groups3 = groups2.collectAsMap()
+    groups3
   }
 
 }

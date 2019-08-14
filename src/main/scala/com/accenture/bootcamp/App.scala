@@ -6,6 +6,8 @@ import com.accenture.bootcamp.day1.Tasks
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.SQLContext
+
 import scala.math._
 
 
@@ -22,6 +24,7 @@ object App {
 
     val conf:SparkConf = new SparkConf().setAppName("SparkJob").setMaster("local")
     val sc:SparkContext = new SparkContext(conf)
+    val sqlContext = new SQLContext(sc)
 
     val honours1918Rdd = Loader.loadNewYearHonours(sc)
     val australianTreatiesRdd = Loader.loadAustralianTreaties(sc)
@@ -32,6 +35,8 @@ object App {
     //val lines = sc.parallelize(List("1842 – Treaty 5 March treaty 1856)[5]"))
 
     val lines_alt = ("1842 – Treaty 5 March treaty 1856)[5]")
+
+    val sampleWord = "sayonara"
 
     val answer3 = Tokenizer.words("1842 – Treaty 5 March 1856) [5]")
 
@@ -51,7 +56,10 @@ object App {
 
     val answer11 = Tokenizer.wordFrequency(australianTreatiesRdd)
 
+    val answer12b = Tokenizer.wordClassifier(sampleWord)
+
     //val task5 = sc.parallelize(List("Welcome\tto\nAccenture\rLatvia! End"))
+
 
 
     println( "Hello World!" )
@@ -102,6 +110,12 @@ object App {
 
     println("Task 11, the most frequent words in Australian treaties are:")
     answer11.collect().take(10).foreach(println)
+    println()
+
+    println(Tokenizer.wordStats(sampleWord))
+    println()
+
+    println(answer12b)
 
 
   }
