@@ -26,17 +26,17 @@ object App {
     val honours1918Rdd = Loader.loadNewYearHonours(sc)
     val australianTreatiesRdd = Loader.loadAustralianTreaties(sc)
 
-    //val tHonours1918 = honours1918Rdd.flatMap(line => line.split(" "))
     val tHonours1918 = Tokenizer.tokenize(honours1918Rdd)
-    //tHonours1918.collect().take(5).foreach(println)
     val tAustralianTreaties = Tokenizer.tokenize(australianTreatiesRdd)
 
-    //val lines1 = honours1918Rdd.collect()
+    //val lines = sc.parallelize(List("1842 – Treaty 5 March treaty 1856)[5]"))
+
+    val lines_alt = ("1842 – Treaty 5 March treaty 1856)[5]")
 
     val answer3 = Tokenizer.words("1842 – Treaty 5 March 1856) [5]")
 
     val answer4 = Tokenizer.countWords(tHonours1918)
-    //println(answer4)
+
     val answer5 = Tokenizer.countWords(tAustralianTreaties)
 
     val answer7 = Tokenizer.numbersAlt(answer3)
@@ -45,9 +45,13 @@ object App {
 
     val answer9 = ceil(Tokenizer.numbers(australianTreatiesRdd).sum()/Tokenizer.numbers(australianTreatiesRdd).count())
 
-    val answer10 = Tokenizer.wordFrequencyAlt(Tokenizer.words("1842 – Treaty 5 March treaty 1856)[5]"))
+    val answer10_2 = Tokenizer.wordFrequencyAlt(Tokenizer.words(lines_alt))
+
+    //val answer10 = Tokenizer.wordFrequency(lines.flatMap(Tokenizer.words)).map(_.toLowerCase).collect()
 
     val answer11 = Tokenizer.wordFrequency(australianTreatiesRdd)
+
+    //val task5 = sc.parallelize(List("Welcome\tto\nAccenture\rLatvia! End"))
 
 
     println( "Hello World!" )
@@ -93,7 +97,7 @@ object App {
     println()
 
     println("Task 10, word occurrence and counts:")
-    answer10.foreach(println)
+    answer10_2.foreach(println)
     println()
 
     println("Task 11, the most frequent words in Australian treaties are:")

@@ -41,11 +41,11 @@ class TasksSuite extends SparkSuite {
   }
 
   test("Task #5: How many words are in ListOfAustralianTreaties.txt?") {
-    assert(Tokenizer.countWords(Data.australianTreaties) == 54665)
+    assert(Tokenizer.countWords(Data.australianTreaties) == 54657)
   }
 
   test("Task #6: How many words are in both .txt files?") {
-    assert(task6() == 196981)
+    assert(task6() == 196949)
   }
 
   test("Task #7: Transform RDD so that it should contain numbers only") {
@@ -69,7 +69,11 @@ class TasksSuite extends SparkSuite {
     val lines = sc.parallelize(List(
       "1842 – Treaty 5 March treaty 1856)[5]"
     ))
-    val result = Tokenizer.wordFrequency(lines.flatMap(Tokenizer.words).map(_.toLowerCase)).collect()
+    val result: Array[String] = Tokenizer
+      .wordFrequency(lines
+        .flatMap(Tokenizer.words)
+        .map(_.toLowerCase))
+      .collect()
     assert(result.length == 5)
     assert(result.contains("5" -> 2))
     assert(result.contains("1842" -> 1))

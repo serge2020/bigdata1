@@ -34,7 +34,10 @@ object Tokenizer {
     // TODO Task #4: Count words in RDD
 
     val s = tokenize(rdd).map(word => (word,1)).reduceByKey(_+_).map(rdd => rdd._2).sum()
-
+ /*   val s = tokenize(rdd)
+      .map(_.toLowerCase)
+      .filter(_.nonEmpty)
+      .map(word => (word,1)).reduceByKey(_+_).map(rdd => rdd._2).sum()*/
     s.toLong
 
   }
@@ -97,7 +100,6 @@ object Tokenizer {
 
   def wordFrequencyAlt(text: Array[Word]): Map[String, Int] =
 
-    //text.map(word => (word, 1)).reduceByKey((_+_))
     text.map(_.toLowerCase).groupBy(identity).mapValues(_.size)
 
 
@@ -106,8 +108,10 @@ object Tokenizer {
     // TODO Task #10: Get word occurrences
     // TODO Task #10.1: Replace output type RDD[Any] with correct one
 
+   //Tokenizer.wordFrequency(lines.flatMap(Tokenizer.words))
+
     val t = tokenize(words)
-    val f = t.map(_.replaceAll("[^A-Za-z0-9]", "")).filter(_.nonEmpty)
+    val f = t.map(_.replaceAll("[^A-Za-z0-9]", "")).filter(_.nonEmpty).map(_.toLowerCase)
     val wordCount = f.map(word => (word, 1)).reduceByKey((_+_))
     val wordsSorted =  wordCount.sortBy(_._2, false).map(rdd => rdd._1)
     wordsSorted

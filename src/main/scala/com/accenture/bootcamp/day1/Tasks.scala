@@ -2,6 +2,7 @@ package com.accenture.bootcamp.day1
 
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+import scala.math._
 
 trait Tasks {
 
@@ -61,7 +62,7 @@ trait Tasks {
   def task9(): Double = {
     // TODO Task #9: Calculate average of all numbers in ListOfAustralianTreaties.txt? 
     val australianTreatiesRdd = Loader.loadAustralianTreaties(sc)
-    val answer9 = Tokenizer.numbers(australianTreatiesRdd).sum()/Tokenizer.numbers(australianTreatiesRdd).count()
+    val answer9 = ceil(Tokenizer.numbers(australianTreatiesRdd).sum()/Tokenizer.numbers(australianTreatiesRdd).count())
     answer9
   }
 
