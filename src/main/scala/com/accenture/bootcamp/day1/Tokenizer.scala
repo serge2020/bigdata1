@@ -94,6 +94,14 @@ object Tokenizer {
     *
     * @return
     */
+
+  def wordFrequencyAlt(text: Array[Word]): Map[String, Int] =
+
+    //text.map(word => (word, 1)).reduceByKey((_+_))
+    text.map(_.toLowerCase).groupBy(identity).mapValues(_.size)
+
+
+
   def wordFrequency(words: RDD[Word]):RDD[(String)] = {
     // TODO Task #10: Get word occurrences
     // TODO Task #10.1: Replace output type RDD[Any] with correct one

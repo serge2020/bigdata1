@@ -45,7 +45,7 @@ object App {
 
     val answer9 = ceil(Tokenizer.numbers(australianTreatiesRdd).sum()/Tokenizer.numbers(australianTreatiesRdd).count())
 
-    //val answer10 = Tokenizer.wordsOnly(australianTreatiesRdd)
+    val answer10 = Tokenizer.wordFrequencyAlt(Tokenizer.words("1842 – Treaty 5 March treaty 1856)[5]"))
 
     val answer11 = Tokenizer.wordFrequency(australianTreatiesRdd)
 
@@ -90,6 +90,10 @@ object App {
 
     println("Task 9, the average value of all numbers in Australian treaties:")
     println(answer9)
+    println()
+
+    println("Task 10, word occurrence and counts:")
+    answer10.foreach(println)
     println()
 
     println("Task 11, the most frequent words in Australian treaties are:")
