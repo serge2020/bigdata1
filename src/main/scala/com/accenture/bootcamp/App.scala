@@ -2,11 +2,9 @@ package com.accenture.bootcamp
 
 import com.accenture.bootcamp.day1.Tokenizer
 import com.accenture.bootcamp.day1.Loader
-import com.accenture.bootcamp.day1.Tasks
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.SQLContext
+
 
 import scala.math._
 
@@ -24,7 +22,6 @@ object App {
 
     val conf:SparkConf = new SparkConf().setAppName("SparkJob").setMaster("local")
     val sc:SparkContext = new SparkContext(conf)
-    val sqlContext = new SQLContext(sc)
 
     val honours1918Rdd = Loader.loadNewYearHonours(sc)
     val australianTreatiesRdd = Loader.loadAustralianTreaties(sc)
@@ -32,11 +29,8 @@ object App {
     val tHonours1918 = Tokenizer.tokenize(honours1918Rdd)
     val tAustralianTreaties = Tokenizer.tokenize(australianTreatiesRdd)
 
-    //val lines = sc.parallelize(List("1842 – Treaty 5 March treaty 1856)[5]"))
-
     val lines_alt = ("1842 – Treaty 5 March treaty 1856)[5]")
-
-    val sampleWord = "sayonara"
+    val sampleWord = "."
 
     val answer3 = Tokenizer.words("1842 – Treaty 5 March 1856) [5]")
 
@@ -52,21 +46,16 @@ object App {
 
     val answer10_2 = Tokenizer.wordFrequencyAlt(Tokenizer.words(lines_alt))
 
-    //val answer10 = Tokenizer.wordFrequency(lines.flatMap(Tokenizer.words)).map(_.toLowerCase).collect()
-
     val answer11 = Tokenizer.wordFrequency(australianTreatiesRdd)
 
     val answer12b = Tokenizer.wordClassifier(sampleWord)
 
-    //val task5 = sc.parallelize(List("Welcome\tto\nAccenture\rLatvia! End"))
+    val answer13 = Tokenizer.classify(tAustralianTreaties)
 
-
+    val answer14b = Tokenizer.classifySamples(Tokenizer.tokenize(Loader.loadAustralianTreaties(sc)))
+      .sortByKey().distinct().collect().take(20)
 
     println( "Hello World!" )
-    //println("concat arguments = " + foo(args))
-
-    //println(" There are " + Tokenizer.countWords(lines1) + " lines in 1918 Honours")
-
 
     println("Task 1: printing beginning of NYHonours RDD")
     honours1918Rdd.collect().take(5).foreach(println)
@@ -80,8 +69,6 @@ object App {
     answer3.foreach(println)
     println()
 
-    //tHonours1918.collect().take(5).foreach(println)
-
     println("Answers to the tasks 4 - 6 :")
     println()
     println("Honours 1918 has " + answer4 + " words")
@@ -93,10 +80,8 @@ object App {
     answer7.foreach(println)
     println()
 
-    //answer8.collect().take(5).foreach(println)
 
     println("Task 8, count of unique numbers in Australian treaties:")
-    //answer8.collect().take(5).foreach(println)
     println(answer8)
     println()
 
@@ -112,10 +97,19 @@ object App {
     answer11.collect().take(10).foreach(println)
     println()
 
+    println("Task 12, classification (A, B, C, D) of string 'mama':")
     println(Tokenizer.wordStats(sampleWord))
     println()
-
+    println("This string belongs to the Group:")
     println(answer12b)
+    println()
+
+    println("Task 13, number of words in word groups:")
+    answer13.foreach(println)
+    println()
+
+    println("Samples of each group from Australian treaties:")
+    answer14b.foreach(println)
 
 
   }

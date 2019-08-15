@@ -35,10 +35,6 @@ object Tokenizer {
     // TODO Task #4: Count words in RDD
 
     val s = tokenize(rdd).map(word => (word,1)).reduceByKey(_+_).map(rdd => rdd._2).sum()
- /*   val s = tokenize(rdd)
-      .map(_.toLowerCase)
-      .filter(_.nonEmpty)
-      .map(word => (word,1)).reduceByKey(_+_).map(rdd => rdd._2).sum()*/
     s.toLong
 
   }
@@ -56,10 +52,6 @@ object Tokenizer {
 
     val t = tokenize(text)
     val regex = "[0-9]+"
-    //val f = t.filter(fi => fi matches regex)
-    //val f = t.filter(_.forall(_.isDigit)).map(_.toLong)
-    //val f = t.map(word => word.replaceAll(regex, "")).filter(fi => fi != regex)
-    //text.flatMap().replaceAll("([^0-9]\\s", " ").split(" ")
     val f = t.map(_.replaceAll("[^0-9]+", "")).filter(_.nonEmpty).map(_.toLong)
     f
   }
@@ -67,30 +59,10 @@ object Tokenizer {
   def numbersAlt(text: Array[String]): Seq[Int] = {
     // TODO Task #7: Transform RDD so that it should contain numbers only
 
-    //val regex = "[0-9]+"
-    //val f = words(text.toString).filter(fi => fi matches regex).map(_.toInt)
-    //val f = text.filter(x => x.matches(regex)).map(_.toInt)
     val f = text.map(_.replaceAll("[^0-9]+", "")).filter(_.nonEmpty)
     f.map(_.toInt)
 
-    //line.replaceAll("[^A-Za-z0-9]", " ").split(" ").filter(_.nonEmpty)
   }
-
-/*  def wordsOnly(text: RDD[Word]): RDD[(String)] = {
-    // TODO Task #7: Transform RDD so that it should contain numbers only
-
-    val t = tokenize(text)
-    //val regex = "[0-9]+"
-    //val f = t.filter(fi => fi matches regex)
-    //val f = t.filter(_.forall(_.isDigit)).map(_.toLong)
-    //val f = t.map(word => word.replaceAll(regex, "")).filter(fi => fi != regex)
-    //text.flatMap().replaceAll("([^0-9]\\s", " ").split(" ")
-    val f = t.map(_.replaceAll("[^A-Za-z0-9]", "")).filter(_.nonEmpty)
-    val wordCount = f.map(word => (word, 1)).reduceByKey((_+_))
-    val wordsSorted =  wordCount.sortBy(_._2, false).map(rdd => rdd._1)
-    wordsSorted
-  }*/
-
 
   /**
     * Task #10: Get word occurrences
@@ -109,7 +81,7 @@ object Tokenizer {
     // TODO Task #10: Get word occurrences
     // TODO Task #10.1: Replace output type RDD[Any] with correct one
 
-   //Tokenizer.wordFrequency(lines.flatMap(Tokenizer.words))
+
 
     val t = tokenize(words)
     val f = t.map(_.replaceAll("[^A-Za-z0-9]", "")).filter(_.nonEmpty).map(_.toLowerCase)
@@ -132,10 +104,10 @@ object Tokenizer {
   def wordStats(word: Word): WordStats = {
     // TODO Task #12a: Gather word stats by 4 criteria
 
-    val a = word.toLowerCase().replaceAll("[^0-9]", "").size   //cipari
-    val b = word.toLowerCase().replaceAll("[^aeiouy]", "").size //patskaņi
-    val c = word.toLowerCase().replaceAll("[^b-df-hj-np-tv-z]", "").size    //līdzskaņi
-    val d = word.toLowerCase().replaceAll("[a-z0-9]", "").size  // viss pārējais
+    val a = word.toLowerCase().replaceAll("[^0-9]", "").size   //numbers
+    val b = word.toLowerCase().replaceAll("[^aeiouy]", "").size //vowels
+    val c = word.toLowerCase().replaceAll("[^b-df-hj-np-tv-z]", "").size    //consonants
+    val d = word.toLowerCase().replaceAll("[a-z0-9]", "").size  // other
     val clf: WordStats = (a, b, c, d)
     clf
   }
@@ -158,12 +130,20 @@ object Tokenizer {
     */
   def wordStatsClassifier(wordStats: WordStats): Classifier = {
     // TODO Task #12b: Classify word by
-    //val wordStats = Tokenizer.wordStats(wordStats: String)
 
-    if ((wordStats._1 > 0) && (wordStats._2 == 0 && wordStats._3 == 0 && wordStats._4 == 0) ) "numbers"
+
+/*  if ((wordStats._1 > 0) && (wordStats._2 == 0 && wordStats._3 == 0 && wordStats._4 == 0) ) "numbers"
     else if ((wordStats._1 > 0 || wordStats._4 > 0) && (wordStats._2 + wordStats._3 < 2) ) "thrash"
     else if ((wordStats._2 == wordStats._3) && (wordStats._2 != 0 && wordStats._3 !=0)) "balanced_words"
     else if ((wordStats._2 > wordStats._3) && (wordStats._2 != 0 && wordStats._3 !=0)) "singing_words"
+    else "grunting_words"*/
+
+    if (wordStats._1 > 0 && wordStats._4 > 0) "thrash"
+    else if ((wordStats._1 > 0 || wordStats._4 > 0) && (wordStats._2 + wordStats._3 > 0) ) "thrash"
+    else if  ((wordStats._4 > 0) && (wordStats._2 == 0 && wordStats._3 == 0 && wordStats._1 == 0)) "thrash"
+    else if  ((wordStats._1 > 0) && (wordStats._2 == 0 && wordStats._3 == 0 && wordStats._4 == 0)) "numbers"
+    else if ((wordStats._2 == wordStats._3) && (wordStats._1 == 0 && wordStats._4 ==0)) "balanced_words"
+    else if ((wordStats._2 > wordStats._3) && (wordStats._1 == 0 && wordStats._4 ==0)) "singing_words"
     else "grunting_words"
 
     }
@@ -184,10 +164,17 @@ object Tokenizer {
   def classify(words: RDD[Word]): Map[Classifier, Amount] = {
     // TODO Task #13a: How many elements there are in each group
 
-    val groups1 = words.map(x => (x, Tokenizer.wordClassifier(x)))
-    val groups2 = groups1.map({gp => (gp._2, gp._2.count(_ == gp._2).toLong)})
-    val groups3 = groups2.collectAsMap()
+
+    val groups1 = words.map(x => (Tokenizer.wordClassifier(x)))
+    val groups2 = groups1.map(x => (x, 1)).reduceByKey(_+_)
+    val groups3 = (groups2.collect().toMap).map(x => (x._1, x._2.toLong))
     groups3
+  }
+
+
+  def classifySamples(words: RDD[Word]): RDD[(Classifier, WordStats)] = {
+    val groups1 = words.map(x => (Tokenizer.wordClassifier(x), Tokenizer.wordStats(x)))
+    groups1
   }
 
 }

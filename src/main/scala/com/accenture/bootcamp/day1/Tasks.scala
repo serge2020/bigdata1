@@ -88,7 +88,7 @@ trait Tasks {
     */
   def task13: Map[String, Long] = {
     // TODO Task #13: How many elements there are in each group in ListOfAustralianTreaties.txt
-    ???
+    Tokenizer.classify(Tokenizer.tokenize(Loader.loadAustralianTreaties(sc)))
   }
 
   /**
@@ -98,7 +98,13 @@ trait Tasks {
     */
   def task14: RDD[(String, (Int, Int, Int, Int))] = {
     // TODO Task #14: Print samples of each group with A, B, C, D values from ListOfAustralianTreaties.txt?
-    ???
+
+    val answer14 = Tokenizer.classifySamples(Tokenizer.tokenize(Loader.loadAustralianTreaties(sc)))
+      .sortByKey().distinct().collect().take(1000)
+     //answer14
+
+    val a = sc.parallelize(answer14)
+    a
   }
 
 }
